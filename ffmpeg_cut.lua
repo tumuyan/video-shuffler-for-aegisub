@@ -76,7 +76,7 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
         end
     elseif keyframe then
         codec = " -acodec copy -vcodec copy "
-    end 
+    end
 
     local cmd = "ffmpeg -i \"" .. input_path .. "\" -ss "
 

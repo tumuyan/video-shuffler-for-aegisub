@@ -29,31 +29,8 @@ function cut(mode, skip_blank_chapter_name)
     audio_path = aegisub.project_properties().audio_file
     output_folder = string.gsub(script_path, "%.[^.]+", "/")
 
-    --[[     
-    示例1：分离字幕为多个片段（使用原视频的时间轴，用于预览字幕片段是否正确）  
-    `python main.py xxx.ass -rt`等同`python main.py xxx.ass -m cut -c 1 -t 10 -rt `  
-
-    示例2： 切分章节列表文件中的片段的视频和字幕,其中视频只处理音频（从而加快速度）  
-    `python main.py xxx.ass -i "xxx.mp4" -a -r "xxxx content.txt"`  
-
-    示例3: 切分章节列表文件中的片段的视频和字幕  
-    `python main.py xxx.ass -i "xxx.mp4" -v -r "xxxx content.txt"`  
-
-    示例4: 切分视频和字幕为多个片段  
-    `python main.py xxx.ass -i "xxx.mp4" -v`  
-
-    示例5: 转换字幕列表文件中的字幕为lrc文件  
-    `python main.py xxx.ass -m lrc`  
-    `python main.py "xxxx  filelist.txt" -m lrc`  
-
-    示例6：合并视频和字幕文件  
-    `python main.py "xxxx  filelist.txt" -v -m merge`   
-    
-    选中的章节
-    ]]
-
     if mode == 0 then
-        cmd = string.sub(output_folder, 0, 2) .. " & cd \"" .. output_folder .. "\" & dir & explorer .  & pause"
+        cmd = string.sub(output_folder, 0, 2) .. " & cd \"" .. output_folder .. "\" & dir & explorer . "
         os.execute(cmd)
     end
 

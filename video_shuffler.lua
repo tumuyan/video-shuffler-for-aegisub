@@ -32,6 +32,21 @@ function cut(mode, skip_blank_chapter_name)
     if mode == 0 then
         cmd = string.sub(output_folder, 0, 2) .. " & cd \"" .. output_folder .. "\" & dir & explorer . "
         os.execute(cmd)
+        return
+    end
+
+    script_suffix = string.gsub(script_path,  '.+%.', '')
+    if script_suffix ~= "ass" then
+        local dialog=
+		{
+			{
+				class="label",
+				x=0,y=0,width=2,height=2,
+				label="字幕格式错误：\n洋片箱只能处理ASS格式的字幕，但目前的字幕格式是" .. script_suffix
+			}
+		}
+		local script_suffix_validate, results = aegisub.dialog.display(dialog)
+        return
     end
 
     cmd = "python " .. video_shuffler .. " \""
@@ -42,15 +57,14 @@ function cut(mode, skip_blank_chapter_name)
     elseif mode == 3 then
         cmd = cmd .. script_path .. "\" -i \"" .. video_path .. "\" -v -r \"" .. output_folder .. " content.txt\""
     elseif mode == 4 then
-        cmd = cmd .. script_path .. "\" -i \"" .. audio_path .. "\" -v "
+        cmd = cmd .. script_path .. "\" -i \"" .. video_path .. "\" -v "
     end
 
     if skip_blank_chapter_name then
-        os.execute(cmd .. " -b & pause")
-    else
-        os.execute(cmd)
+        cmd = cmd ..  " -b"
     end
 
+    os.execute(cmd .. " & pause")
 end
 
 function cut_0(subs, sel)
@@ -58,7 +72,7 @@ function cut_0(subs, sel)
 end
 
 function cut_1(subs, sel)
-    cut(1, true)
+    cut(1, false)
 end
 
 function cut_2(subs, sel)

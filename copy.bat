@@ -1,0 +1,1 @@
+copy *.lua A:\Media\Aegisub-portable-64\automation\autoload

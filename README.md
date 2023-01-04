@@ -2,7 +2,7 @@
 Script for Aegisub to cut video and voice files.   
 在Aegisub中用字幕切割视频和音频文件。
 
-### 用法
+## 用法
 1. 下载[ffmpeg](https://ffmpeg.org/download.html)  
 2. 解压并把ffmpeg添加到系统环境变量中
 3. 下载本仓库文件，复制到aegisub的`automation\autoload`目录中
@@ -18,6 +18,12 @@ Script for Aegisub to cut video and voice files.
 
 ![](img/screen_1.png)
 
+
+## import_index.lua
+把带时间信息的文本粘贴到文本框中，导入到字幕时间轴上，生成章节信息
+
+![](img/screen_3.png)
+
 ## video_shuffler.lua
 使用[video shuffler（洋片箱）](https://github.com/tumuyan/video-shuffler)对字幕和视频进行处理。  
 由于洋片箱是一个Python工具，因此必须额外安装Python环境以及洋片箱这个工具，并且在脚本中设置洋片箱的路径，即脚本中的如下内容：
@@ -30,3 +36,6 @@ video_shuffler = "C:\\prg\\video-shuffler\\main.py"
 2. 打开输出目录。只对Windows系统有效，打开生成的新文件夹
 
 ![](img/screen_2.png)
+
+## 存在的问题
+1. 部分文件在不同版本的Aegisub中加载后，存在时间轴错位的问题。这会导致导出结果的时间点有问题。

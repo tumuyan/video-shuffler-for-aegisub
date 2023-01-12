@@ -46,6 +46,14 @@ function ms2str(ms)
     return "" .. h .. ":" .. m .. ":" .. s
 end
 
+string.split = function(s, p)
+    local rt = {}
+    string.gsub(s, '[^' .. p .. ']+', function(w)
+        table.insert(rt, w)
+    end)
+    return rt
+end
+
 function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
     script_path = aegisub.decode_path("?script/" .. aegisub.file_name())
     video_path = aegisub.project_properties().video_file
@@ -83,8 +91,9 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
     if (to_mult) then
         for _, i in ipairs(sel) do
             local line = subs[i]
+            local p = string.split(line.text, "\\N")
             local cmd2 = cmd .. ms2str(line.start_time) .. " -to " .. ms2str(line.end_time) .. codec .. " -y \"" ..
-                             output_folder .. line.text .. output_suffix .. "\""
+                             output_folder .. p[1] .. output_suffix .. "\""
             -- os.execute("echo " .. cmd2 .. " & pause")
             aegisub.progress.title(title)
             aegisub.progress.set(_ * 100 / #sel)
@@ -94,10 +103,11 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
         end
     else
         local line = subs[sel[1]]
+        local p = string.split(line.text, "\\N")
         local start_time = line.start_time
         local end_time = subs[sel[#sel]].end_time
         local cmd2 = cmd .. ms2str(start_time) .. " -to " .. ms2str(end_time) .. codec .. " -y \"" .. output_folder ..
-                         line.text .. output_suffix .. "\""
+                         p[1] .. output_suffix .. "\""
         os.execute(cmd2 .. " & pause")
     end
 end

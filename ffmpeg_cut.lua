@@ -1,9 +1,9 @@
--- Copyright (c) 2022, tumuyan <tumuyan@gmail.com>
+-- Copyright (c) 2022 - 2023, tumuyan <tumuyan@gmail.com>
 local tr = aegisub.gettext
 
 script_name = tr "ffmpeg cut"
 script_author = "tumuyan"
-script_version = "0.1"
+script_version = "0.2"
 script_description = "Cut video or audio to clips by ffmpeg. \n用ffmpeg切分选中的字幕对应的视频/音频"
 
 video_suffixs = {"mp4", "mkv", "flv"}
@@ -83,17 +83,15 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
             codec = " -vn "
         end
     elseif keyframe then
-        codec = " -acodec copy -vcodec copy "
+        codec = " -acodec copy -vcodec copy  -avoid_negative_ts make_zero "
     end
-
-    local cmd = "ffmpeg -i \"" .. input_path .. "\" -ss "
 
     if (to_mult) then
         for _, i in ipairs(sel) do
             local line = subs[i]
             local p = string.split(line.text, "\\N")
-            local cmd2 = cmd .. ms2str(line.start_time) .. " -to " .. ms2str(line.end_time) .. codec .. " -y \"" ..
-                             output_folder .. p[1] .. output_suffix .. "\""
+            local cmd2 = "ffmpeg  -ss " .. ms2str(line.start_time) .. " -to " .. ms2str(line.end_time) .. " -i \"" ..
+                             input_path .. "\" " .. codec .. " -y \"" .. output_folder .. p[1] .. output_suffix .. "\""
             -- os.execute("echo " .. cmd2 .. " & pause")
             aegisub.progress.title(title)
             aegisub.progress.set(_ * 100 / #sel)
@@ -106,8 +104,8 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
         local p = string.split(line.text, "\\N")
         local start_time = line.start_time
         local end_time = subs[sel[#sel]].end_time
-        local cmd2 = cmd .. ms2str(start_time) .. " -to " .. ms2str(end_time) .. codec .. " -y \"" .. output_folder ..
-                         p[1] .. output_suffix .. "\""
+        local cmd2 = "ffmpeg -ss " .. ms2str(start_time) .. " -to " .. ms2str(end_time) .. " -i \"" .. input_path ..
+                         "\" " .. codec .. " -y " .. " \"" .. output_folder .. p[1] .. output_suffix .. "\""
         os.execute(cmd2 .. " & pause")
     end
 end
@@ -138,14 +136,14 @@ end
 
 aegisub.register_macro("保存选中每行字幕对应的媒体的为一个" .. tr "Video", script_description,
     cut_video_mult, validate_video)
-aegisub.register_macro("保存选中每行字幕对应的媒体的为一个" .. tr "Video" .. tr "(Keyframe)",
+aegisub.register_macro("保存选中每行字幕对应的媒体的为一个" .. tr "Video" .. tr "(不重编码)",
     script_description, cut_video_mult_keyframe, validate_video)
 aegisub.register_macro("保存选中每行字幕对应的媒体的为一个" .. tr "Audio", script_description,
     cut_audio_mult)
 
 aegisub.register_macro("保存选中字幕始末范围的媒体为一个" .. tr "Video", script_description,
     cut_video_one, validate_video)
-aegisub.register_macro("保存选中字幕始末范围的媒体为一个" .. tr "Video" .. tr "(Keyframe)",
+aegisub.register_macro("保存选中字幕始末范围的媒体为一个" .. tr "Video" .. tr "(不重编码)",
     script_description, cut_video_one_keyframe, validate_video)
 aegisub.register_macro("保存选中字幕始末范围的媒体为一个" .. tr "Audio", script_description,
     cut_audio_one)

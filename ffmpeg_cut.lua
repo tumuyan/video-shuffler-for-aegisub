@@ -106,8 +106,7 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
         local cmd2 =
             "ffmpeg -ss " .. ms2str(start_time) .. " -to " .. ms2str(end_time) .. ' -i "' .. input_path .. '" ' .. codec ..
                 ' -y "' .. output_folder .. p[1] .. output_suffix .. '"'
-        aegisub.debug.out(cmd2 .. " & pause")
-        -- os.execute("echo " .. cmd2 .. " & pause")
+        -- aegisub.debug.out(cmd2 .. " & pause")
         os.execute(cmd2 .. " & pause")
     end
 end

@@ -38,12 +38,12 @@ function validate_audio(suffix)
 end
 
 function ms2str(ms)
-    s = ms / 1000.0
+    s = ms / 1000
     m = math.floor(s / 60)
     s = s - 60 * m
     h = math.floor(m / 60)
     m = m - 60 * h
-    return "" .. h .. ":" .. m .. ":" .. s
+    return string.format("%02d:%02d:%.2f", h, m, s)
 end
 
 string.split = function(s, p)
@@ -83,15 +83,14 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
             codec = " -vn "
         end
     elseif keyframe then
-        codec = " -acodec copy -vcodec copy  -avoid_negative_ts make_zero "
+        codec = " -codec copy -avoid_negative_ts make_zero "
     end
-
     if (to_mult) then
         for _, i in ipairs(sel) do
             local line = subs[i]
             local p = string.split(line.text, "\\N")
-            local cmd2 = "ffmpeg  -ss " .. ms2str(line.start_time) .. " -to " .. ms2str(line.end_time) .. " -i \"" ..
-                             input_path .. "\" " .. codec .. " -y \"" .. output_folder .. p[1] .. output_suffix .. "\""
+            local cmd2 = "ffmpeg  -ss " .. ms2str(line.start_time) .. " -to " .. ms2str(line.end_time) .. ' -i "' ..
+                             input_path .. '" ' .. codec .. ' -y "' .. output_folder .. p[1] .. output_suffix .. '"'
             -- os.execute("echo " .. cmd2 .. " & pause")
             aegisub.progress.title(title)
             aegisub.progress.set(_ * 100 / #sel)
@@ -104,8 +103,11 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
         local p = string.split(line.text, "\\N")
         local start_time = line.start_time
         local end_time = subs[sel[#sel]].end_time
-        local cmd2 = "ffmpeg -ss " .. ms2str(start_time) .. " -to " .. ms2str(end_time) .. " -i \"" .. input_path ..
-                         "\" " .. codec .. " -y " .. " \"" .. output_folder .. p[1] .. output_suffix .. "\""
+        local cmd2 =
+            "ffmpeg -ss " .. ms2str(start_time) .. " -to " .. ms2str(end_time) .. ' -i "' .. input_path .. '" ' .. codec ..
+                ' -y "' .. output_folder .. p[1] .. output_suffix .. '"'
+        aegisub.debug.out(cmd2 .. " & pause")
+        -- os.execute("echo " .. cmd2 .. " & pause")
         os.execute(cmd2 .. " & pause")
     end
 end

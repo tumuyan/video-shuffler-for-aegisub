@@ -37,6 +37,10 @@ function validate_audio(suffix)
     return false;
 end
 
+function validate_video_audio()
+    return aegisub.project_properties().video_file ~= aegisub.project_properties().audio_file;
+end
+
 function ms2str(ms)
     s = ms / 1000
     m = math.floor(s / 60)
@@ -135,16 +139,46 @@ function cut_video_mult_keyframe(subs, sel)
     ffmpeg_cut(subs, sel, false, true, true)
 end
 
-aegisub.register_macro("保存选中每行字幕对应的媒体的为一个" .. tr "Video", script_description,
+function merge_video_audio()
+    os.execute('ffmpeg -i "' .. aegisub.project_properties().video_file .. '" -i "' ..
+                   aegisub.project_properties().audio_file .. '"   -vcodec copy  -map 0:0 -map 1:0 -y "' ..
+                   aegisub.project_properties().video_file .. '_replace_audio.' .. suffix .. '" & pause');
+end
+
+function merge_video_sub()
+    script_path = (aegisub.decode_path("?script/" .. aegisub.file_name()));
+    cmd = string.gsub(script_path,":.+",": & ") .. 'cd "'..script_path..'\\..\" & ' ;
+
+    video_path = aegisub.project_properties().video_file;
+    script_suffix = (string.gsub(script_path, '.+%.', ''));
+    video_suffix = (string.gsub(video_path, '.+%.', ''));
+
+    vf = '"subtitles=' .. aegisub.file_name() .. '"';
+    if (script_suffix == "ass") then
+        vf = '"ass=' .. aegisub.file_name() .. '"';
+    end
+    cmd = cmd .. 'ffmpeg -i "' .. aegisub.project_properties().video_file .. '" -vf ' .. vf .. ' -y "' ..
+              aegisub.project_properties().video_file .. '_merge_sub.' .. video_suffix .. '" & pause'
+    aegisub.debug.out(aegisub.file_name() .. "\n" ..cmd)
+    os.execute(cmd);
+end
+
+aegisub.register_macro("保存选中每行字幕对应的媒体的为一个/" .. tr "Video", script_description,
     cut_video_mult, validate_video)
-aegisub.register_macro("保存选中每行字幕对应的媒体的为一个" .. tr "Video" .. tr "(不重编码)",
+aegisub.register_macro("保存选中每行字幕对应的媒体的为一个/" .. tr "Video" .. tr "(不重编码)",
     script_description, cut_video_mult_keyframe, validate_video)
-aegisub.register_macro("保存选中每行字幕对应的媒体的为一个" .. tr "Audio", script_description,
+aegisub.register_macro("保存选中每行字幕对应的媒体的为一个/" .. tr "Audio", script_description,
     cut_audio_mult)
 
-aegisub.register_macro("保存选中字幕始末范围的媒体为一个" .. tr "Video", script_description,
+aegisub.register_macro("保存选中字幕始末范围的媒体为一个/" .. tr "Video", script_description,
     cut_video_one, validate_video)
-aegisub.register_macro("保存选中字幕始末范围的媒体为一个" .. tr "Video" .. tr "(不重编码)",
+aegisub.register_macro("保存选中字幕始末范围的媒体为一个/" .. tr "Video" .. tr "(不重编码)",
     script_description, cut_video_one_keyframe, validate_video)
-aegisub.register_macro("保存选中字幕始末范围的媒体为一个" .. tr "Audio", script_description,
+aegisub.register_macro("保存选中字幕始末范围的媒体为一个/" .. tr "Audio", script_description,
     cut_audio_one)
+
+aegisub.register_macro("合并" .. tr "Video" .. "和" .. tr "Audio", "用打开的音频替换视频中的音频",
+    merge_video_audio, validate_video_audio)
+
+aegisub.register_macro("合并" .. tr "Video" .. "和" .. tr "字幕", "压制打开的视频和字幕",
+    merge_video_sub, validate_video)

@@ -27,7 +27,7 @@ function cut(mode, skip_blank_chapter_name)
     script_path = aegisub.decode_path("?script/" .. aegisub.file_name())
     video_path = aegisub.project_properties().video_file
     audio_path = aegisub.project_properties().audio_file
-    output_folder = string.gsub(script_path, "%.[^.]+", "/")
+    output_folder = string.gsub(script_path, "%.[^.]+$", "\\")
 
     if mode == 0 then
         cmd = string.sub(output_folder, 0, 2) .. " & cd \"" .. output_folder .. "\" & dir & explorer . "
@@ -63,7 +63,6 @@ function cut(mode, skip_blank_chapter_name)
     if skip_blank_chapter_name then
         cmd = cmd ..  " -b"
     end
-
     os.execute(cmd .. " & pause")
 end
 

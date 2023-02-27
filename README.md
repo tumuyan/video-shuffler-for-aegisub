@@ -31,6 +31,7 @@ Script for Aegisub to cut video and voice files.
 
 ## get_selected_text.lua
 提取选中的字幕为纯文本（跳过Comment行和空行）
+![](img/screen_4.png)
 
 ## video_shuffler.lua
 使用[video shuffler（洋片箱）](https://github.com/tumuyan/video-shuffler)对字幕和视频进行处理。  

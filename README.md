@@ -29,6 +29,9 @@ Script for Aegisub to cut video and voice files.
 
 ![](img/screen_3.png)
 
+## get_selected_text.lua
+提取选中的字幕为纯文本（跳过Comment行和空行）
+
 ## video_shuffler.lua
 使用[video shuffler（洋片箱）](https://github.com/tumuyan/video-shuffler)对字幕和视频进行处理。  
 由于洋片箱是一个Python工具，因此必须额外安装Python环境以及洋片箱这个工具，并且在脚本中设置洋片箱的路径，即脚本中的如下内容：

@@ -1,7 +1,8 @@
 -- Copyright (c) 2023 - 2023, tumuyan <tumuyan@gmail.com>
 local tr = aegisub.gettext
 
-script_name = "提取选中的字幕为纯文本"
+script_name = "Get selected text"
+script_name_cn = "提取选中的纯文本"
 script_author = "tumuyan"
 script_version = "0.1"
 script_description = "提取选中的字幕为纯文本（跳过Comment行和空行）"
@@ -30,4 +31,4 @@ function save_selected(subs,sel)
 end
 
 
-aegisub.register_macro(script_name, script_description, save_selected , validate_select)
+aegisub.register_macro(script_name .. ' - '.. script_name_cn, script_description, save_selected , validate_select)

@@ -1,7 +1,7 @@
--- Copyright (c) 2022, tumuyan <tumuyan@gmail.com>
+-- Copyright (c) 2022-2023, tumuyan <tumuyan@gmail.com>
 local tr = aegisub.gettext
 
-script_name = tr "import index"
+script_name = tr "Import index"
 script_author = "tumuyan"
 script_version = "0.1.0"
 script_description = "导入文本索引到字幕中"
@@ -50,8 +50,8 @@ function import_index(subs, sel)
         name = "fx",
         text = ""
     }}
-    local rg, rg_res = aegisub.dialog.display(r_gui, {"OK", "Cancel"})
-    if rg == "OK" then
+    local rg, rg_res = aegisub.dialog.display(r_gui, {tr"OK", tr"Cancel"})
+    if rg ==tr"OK" then
         local lines = string.split(rg_res.fx, "\n")
         local textlist = {}
         local timelist = {}
@@ -69,7 +69,7 @@ function import_index(subs, sel)
         end
 
         if #timelist < 1 then
-            os.execute("echo no find subs & pause")
+            aegisub.dialog.display({{ x=1, y=0, width=1, height=1, class="label", label="没有待导入的内容" }}, {tr"OK"})
             return
         end
 

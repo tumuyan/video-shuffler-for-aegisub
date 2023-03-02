@@ -37,10 +37,12 @@ function validate_audio(suffix)
     return false;
 end
 
+-- 检查打开的音频流和视频流是否为同一个文件
 function validate_video_audio()
     return aegisub.project_properties().video_file ~= aegisub.project_properties().audio_file;
 end
 
+-- 毫秒转换为时分秒
 function ms2str(ms)
     s = ms / 1000
     m = math.floor(s / 60)
@@ -50,6 +52,7 @@ function ms2str(ms)
     return string.format("%02d:%02d:%.2f", h, m, s)
 end
 
+-- 定义一个分割字符串的方法
 string.split = function(s, p)
     local rt = {}
     string.gsub(s, '[^' .. p .. ']+', function(w)
@@ -95,7 +98,7 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
             local p = string.split(line.text, "\\N")
             local cmd2 = "ffmpeg  -ss " .. ms2str(line.start_time) .. " -to " .. ms2str(line.end_time) .. ' -i "' ..
                              input_path .. '" ' .. codec .. ' -y "' .. output_folder .. p[1] .. output_suffix .. '"'
-            -- os.execute("echo " .. cmd2 .. " & pause")
+            -- aegisub.debug.out(cmd2)
             aegisub.progress.title(title)
             aegisub.progress.set(_ * 100 / #sel)
             aegisub.progress.task(line.text)
@@ -110,7 +113,7 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
         local cmd2 =
             "ffmpeg -ss " .. ms2str(start_time) .. " -to " .. ms2str(end_time) .. ' -i "' .. input_path .. '" ' .. codec ..
                 ' -y "' .. output_folder .. p[1] .. output_suffix .. '"'
-        -- aegisub.debug.out(cmd2 .. " & pause")
+        -- aegisub.debug.out(cmd2)
         os.execute(cmd2 .. " & pause")
     end
 end
@@ -139,12 +142,14 @@ function cut_video_mult_keyframe(subs, sel)
     ffmpeg_cut(subs, sel, false, true, true)
 end
 
+-- 用打开的音频替换视频中的音频
 function merge_video_audio()
     os.execute('ffmpeg -i "' .. aegisub.project_properties().video_file .. '" -i "' ..
                    aegisub.project_properties().audio_file .. '"   -vcodec copy  -map 0:0 -map 1:0 -y "' ..
                    aegisub.project_properties().video_file .. '_replace_audio.' .. suffix .. '" & pause');
 end
 
+-- 压制打开的视频和字幕
 function merge_video_sub()
     script_path = (aegisub.decode_path("?script/" .. aegisub.file_name()));
     cmd = string.gsub(script_path,":.+",": & ") .. 'cd "'..script_path..'\\..\" & ' ;
@@ -163,6 +168,7 @@ function merge_video_sub()
     os.execute(cmd);
 end
 
+-- 在Aegisub自动化菜单下增加命令
 aegisub.register_macro("保存选中每行字幕对应的媒体的为一个/" .. tr "Video", script_description,
     cut_video_mult, validate_video)
 aegisub.register_macro("保存选中每行字幕对应的媒体的为一个/" .. tr "Video" .. tr "(不重编码)",

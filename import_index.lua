@@ -92,6 +92,7 @@ function import_index(subs, sel)
                     it.end_time = insert_time
                     it.text = textlist[j]
                     subs.insert(i, it)
+                    -- os.execute("echo " .. j .. insert_time .. " " .. textlist[j] .. " & pause")
                     j = j + 1
                     if j > #timelist then
                         break
@@ -102,8 +103,8 @@ function import_index(subs, sel)
             end
         end
 
-        for k = j, #timelist, 1 do
-            aegisub.progress.set(k * 100 / #timelist)
+        for j = j, #timelist, 1 do
+            aegisub.progress.set(j * 100 / #timelist)
             aegisub.progress.task(textlist[j])
             local it = sample
             it.start_time = timelist[j]

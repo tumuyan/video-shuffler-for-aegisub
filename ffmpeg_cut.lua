@@ -61,7 +61,7 @@ string.split = function(s, p)
     return rt
 end
 
-function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
+function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe, num_name)
     script_path = aegisub.decode_path("?script/" .. aegisub.file_name())
     video_path = aegisub.project_properties().video_file
     audio_path = aegisub.project_properties().audio_file
@@ -93,18 +93,31 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe)
         codec = " -codec copy -avoid_negative_ts make_zero "
     end
     if (to_mult) then
+        if num_name then
+            output_folder = string.lower(string.gsub(audio_path, '%..-$', ''))
+            os.execute('mkdir "' .. output_folder .. '"')
+        end
+
         for _, i in ipairs(sel) do
             local line = subs[i]
-            local p = string.split(line.text, "\\N")
+            local p1 = ""
+            if num_name then
+                p1 = '/' .. _
+            else
+                local p = string.split(line.text, "\\N")
+                p1 = p[1]
+            end
+
             local cmd2 = "ffmpeg  -ss " .. ms2str(line.start_time) .. " -to " .. ms2str(line.end_time) .. ' -i "' ..
-                             input_path .. '" ' .. codec .. ' -y "' .. output_folder .. p[1] .. output_suffix .. '"'
-            -- aegisub.debug.out(cmd2)
+                             input_path .. '" ' .. codec .. ' -y "' .. output_folder .. p1 .. output_suffix .. '"'
+            aegisub.debug.out(cmd2)
             aegisub.progress.title(title)
             aegisub.progress.set(_ * 100 / #sel)
             aegisub.progress.task(line.text)
             os.execute(cmd2)
             -- break
         end
+
     else
         local line = subs[sel[1]]
         local p = string.split(line.text, "\\N")
@@ -134,8 +147,12 @@ function cut_audio_mult(subs, sel)
     ffmpeg_cut(subs, sel, true, true, false)
 end
 
+function cut_audio_mult_list(subs, sel)
+    ffmpeg_cut(subs, sel, true, true, false, true)
+end
+
 function cut_video_mult(subs, sel)
-    ffmpeg_cut(subs, sel, false, true, false)
+    ffmpeg_cut(subs, sel, false, true, false, true)
 end
 
 function cut_video_mult_keyframe(subs, sel)
@@ -152,7 +169,7 @@ end
 -- 压制打开的视频和字幕
 function merge_video_sub()
     script_path = (aegisub.decode_path("?script/" .. aegisub.file_name()));
-    cmd = string.gsub(script_path,":.+",": & ") .. 'cd "'..script_path..'\\..\" & ' ;
+    cmd = string.gsub(script_path, ":.+", ": & ") .. 'cd "' .. script_path .. '\\..\" & ';
 
     video_path = aegisub.project_properties().video_file;
     script_suffix = (string.gsub(script_path, '.+%.', ''));
@@ -164,7 +181,7 @@ function merge_video_sub()
     end
     cmd = cmd .. 'ffmpeg -i "' .. aegisub.project_properties().video_file .. '" -vf ' .. vf .. ' -y "' ..
               aegisub.project_properties().video_file .. '_merge_sub.' .. video_suffix .. '" & pause'
-    aegisub.debug.out(aegisub.file_name() .. "\n" ..cmd)
+    aegisub.debug.out(aegisub.file_name() .. "\n" .. cmd)
     os.execute(cmd);
 end
 
@@ -175,6 +192,8 @@ aegisub.register_macro("保存选中每行字幕对应的媒体的为一个/" ..
     script_description, cut_video_mult_keyframe, validate_video)
 aegisub.register_macro("保存选中每行字幕对应的媒体的为一个/" .. tr "Audio", script_description,
     cut_audio_mult)
+aegisub.register_macro("保存选中每行字幕对应的媒体的为一个/" .. tr "Audio" .. "(使用序号命名)",
+    script_description, cut_audio_mult_list)
 
 aegisub.register_macro("保存选中字幕始末范围的媒体为一个/" .. tr "Video", script_description,
     cut_video_one, validate_video)

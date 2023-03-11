@@ -93,16 +93,24 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe, num_name)
         codec = " -codec copy -avoid_negative_ts make_zero "
     end
     if (to_mult) then
+        local num_start = 0
         if num_name then
             output_folder = string.lower(string.gsub(audio_path, '%..-$', ''))
             os.execute('mkdir "' .. output_folder .. '"')
+            for i = 1, #subs do
+                local line = subs[i]
+                if (line.class == "dialogue") then
+                    num_start = i - 1
+                    break
+                end
+            end
         end
 
         for _, i in ipairs(sel) do
             local line = subs[i]
             local p1 = ""
             if num_name then
-                p1 = '/' .. _
+                p1 = '/' .. (i - num_start)
             else
                 local p = string.split(line.text, "\\N")
                 p1 = p[1]
@@ -110,7 +118,8 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe, num_name)
 
             local cmd2 = "ffmpeg  -ss " .. ms2str(line.start_time) .. " -to " .. ms2str(line.end_time) .. ' -i "' ..
                              input_path .. '" ' .. codec .. ' -y "' .. output_folder .. p1 .. output_suffix .. '"'
-            aegisub.debug.out(cmd2)
+            -- aegisub.debug.out(cmd2)
+            -- aegisub.debug.out("\n")
             aegisub.progress.title(title)
             aegisub.progress.set(_ * 100 / #sel)
             aegisub.progress.task(line.text)

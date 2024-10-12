@@ -1,5 +1,10 @@
 -- Copyright (c) 2022 - 2024, tumuyan <tumuyan@gmail.com>
 local tr = aegisub.gettext
+-- require('luacom')
+-- local Shell = luacom.CreateObject("WScript.Shell")
+-- Shell:Run (command, 0)
+
+
 DEBUG_LOG = false
 script_name = tr "ffmpeg cut"
 script_author = "tumuyan"
@@ -110,6 +115,21 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe, name_mode)
             end
         end
 
+
+        currentTimestamp = os.time()
+        -- 创建一个临时批处理文件
+        batFile = "temp_ffmpeg".. currentTimestamp ..".bat"
+        
+        -- 写入FFmpeg命令到批处理文件
+        file = io.open(batFile, "w", "UTF-8")
+        if file then
+            file:write("@echo off\n")
+            file:write("chcp 65001 > nul\n")  -- 设置代码页为UTF-8
+        else
+            aegisub.debug.out("无法创建临时批处理文件")
+            return
+        end
+
         for _, i in ipairs(sel) do
             local line = subs[i]
             local p1 = ""
@@ -132,9 +152,19 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe, name_mode)
             aegisub.progress.title(title)
             aegisub.progress.set(_ * 100 / #sel)
             aegisub.progress.task(line.text)
-            os.execute(cmd2)
-            -- os.execute('start /b cmd /c  ' .. cmd2)
+            -- os.execute(cmd2)
+            -- os.execute('start /b ' .. cmd2)
+            -- Shell:Run (cmd2 .. " & pause", 0)
+            file:write(cmd2 .. "\n")
         end
+
+        -- file:write("echo Finish!\n")
+        -- file:write("pause\n")
+        file:write("exit\n")
+        file:close()
+        -- 使用cmd /c调用批处理文件
+        os.execute("cmd /c " .. batFile)
+        os.remove(batFile)
 
     else
         local line = subs[sel[1]]

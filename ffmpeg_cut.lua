@@ -88,7 +88,7 @@ function ffmpeg_cut(subs, sel, to_audio, to_mult, keyframe, name_mode)
         input_path = audio_path
         output_folder = aegisub.decode_path("?audio/")
         title = tr "Audio:"
-        if validate_audio(audio_suffixs) then
+        if validate_audio(audio_suffix) then
             output_suffix = audio_suffix
             codec = " -acodec copy "
         elseif audio_suffix == ".mp4" then
